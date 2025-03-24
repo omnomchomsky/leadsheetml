@@ -1,8 +1,10 @@
+use std::arch::is_aarch64_feature_detected;
 use pest::Parser;
 use pest::error::Error;
 use pest_derive::Parser;
 use std::fs;
 use std::io::read_to_string;
+use crate::NoteLetter::A;
 use crate::Rule::song;
 use crate::Segment::{Inline, Measure};
 
@@ -205,7 +207,7 @@ fn parse_chord_token(unparsed_chord: pest::iterators::Pair<Rule>) -> Chord {
     parsed_chord
 }
 
-fn parse_chord(unparsed_chord_elements: pest::iterators::Pair<Rule>) -> Chord {
+fn parse_chord(unparsed_chord: pest::iterators::Pair<Rule>) -> Chord {
     let mut chord = Chord {
         root: Note {
             letter: NoteLetter::A,
@@ -213,9 +215,135 @@ fn parse_chord(unparsed_chord_elements: pest::iterators::Pair<Rule>) -> Chord {
         },
         quality: None,
         extensions: Vec::new(),
-        bass: None,
+        bass: None
     };
+    for chord_element in unparsed_chord.into_inner() {
+        match chord_element.as_rule() {
+            Rule::chord_elements => {
+                chord = parse_chord_element(chord_element)
+            }
+            Rule::slash_chord => {
+                chord.bass = parse_slash_chord(chord_element);
+            }
+            _ => { }
+        }
+    }
     chord
+}
+
+fn parse_slash_chord(unparsed_slash_chord_note: pest::iterators::Pair<Rule>) -> Option<Note> {
+    let slash_chord_elements = unparsed_slash_chord_note.into_inner().next().unwrap();
+    let parsed_slash_chord_note = parse_key(slash_chord_elements);
+    Some(parsed_slash_chord_note)
+}
+
+
+fn parse_chord_element(unparsed_chord_elements: pest::iterators::Pair<Rule>) -> Chord {
+    let mut root =  Note {
+        letter: NoteLetter::A,
+        accidental: Accidental::None,
+    };
+    let mut quality:String = "".to_string();
+    let mut extensions:Vec<Option<String>> = Vec::new();
+
+    for chord_element in unparsed_chord_elements.into_inner() {
+        match chord_element.as_rule() {
+            Rule::note => {
+                root = parse_key(chord_element)
+            }
+            Rule::quality => {
+                quality = chord_element.as_str().to_string();
+            }
+            Rule::extension => {
+                extensions.push(parse_extension(chord_element))
+            }
+            _ => { }
+        }
+    }
+    Chord {
+        root,
+        quality: Some(quality),
+        extensions,
+        bass: None
+    }
+}
+
+fn parse_key(unparsed_note: pest::iterators::Pair<Rule>) -> Note {
+    let mut note = Note {
+        letter: NoteLetter::A,
+        accidental: Accidental::None
+    };
+    for note_element in unparsed_note.into_inner(){
+        match note_element.as_rule() {
+            Rule::note => {
+                note.letter = parse_letter(note_element)
+            }
+            Rule::accidental => {
+                note.accidental = parse_accidental(note_element)
+            }
+            _ => { }
+        }
+    }
+    note
+}
+
+fn parse_letter(unparsed_letter: pest::iterators::Pair<Rule>) -> NoteLetter {
+    let letter = unparsed_letter.as_str();
+    match letter {
+        "A" => NoteLetter::A,
+        "a" => NoteLetter::A,
+        "B" => NoteLetter::B,
+        "b" => NoteLetter::B,
+        "C" => NoteLetter::C,
+        "c" => NoteLetter::C,
+        "D" => NoteLetter::D,
+        "d" => NoteLetter::D,
+        "E" => NoteLetter::E,
+        "e" => NoteLetter::E,
+        "F" => NoteLetter::F,
+        "f" => NoteLetter::F,
+        "G" => NoteLetter::G,
+        "g" => NoteLetter::G,
+        _ => panic!("Invalid note letter: {}", letter)
+    }
+}
+
+fn parse_accidental(unparsed_accidental: pest::iterators::Pair<Rule>) -> Accidental {
+    let accidental = unparsed_accidental.as_str();
+    match accidental {
+        "#" => Accidental::Sharp,
+        "b" => Accidental::Flat,
+        _ => Accidental::None
+    }
+}
+
+fn parse_extension(unparsed_extension: pest::iterators::Pair<Rule>) -> Option<String> {
+    let extension = unparsed_extension.as_str();
+    match extension {
+        "7" => Some("7".to_string()),
+        "9" => Some("9".to_string()),
+        "maj7" => Some("maj7".to_string()),
+        "maj9" => Some("maj9".to_string()),
+        "min7" => Some("min7".to_string()),
+        "min9" => Some("min9".to_string()),
+        "11" => Some("11".to_string()),
+        "13" => Some("13".to_string()),
+        "b5" => Some("b5".to_string()),
+        "b9" => Some("b9".to_string()),
+        "b11" => Some("b11".to_string()),
+        "b13" => Some("b13".to_string()),
+        "#5" => Some("#5".to_string()),
+        "#9" => Some("#9".to_string()),
+        "#11" => Some("#11".to_string()),
+        "#13" => Some("#13".to_string()),
+        "dim7" => Some("dim7".to_string()),
+        "dim9" => Some("dim9".to_string()),
+        "sus2" => Some("sus2".to_string()),
+        "sus4" => Some("sus4".to_string()),
+        "dim" => Some("dim".to_string()),
+        "aug" => Some("aug".to_string()),
+        _ => None
+    }
 }
 
 #[test]
@@ -260,6 +388,13 @@ fn test_parses_simple_text(){
 fn test_parses_simple_directive(){
     let input = "@title: Hello, world!";
     let parsed = LeadSheetMLParser::parse(Rule::directive, input);
+    assert!(parsed.is_ok());
+}
+
+#[test]
+fn test_parse_simple_note(){
+    let input = "A";
+    let parsed = LeadSheetMLParser::parse(Rule::note, input);
     assert!(parsed.is_ok());
 }
 

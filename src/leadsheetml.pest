@@ -17,13 +17,17 @@ measure = { "|" ~ (chord_token | text_token)+ ~ "|" }
 lyric_block = { !"|" ~ (chord_token | text_token) }
 chord_token = { !"|" ~ "[" ~ chord ~ "]"}
 text_token = { ( !"|" | !"[")  ~ (ASCII_ALPHANUMERIC | " " | PUNCTUATION )+ }
-chord = @{ ( chord_elements ~ slash_chord?) }
-slash = { "/" }
-slash_chord = { slash ~ chord_elements }
-chord_elements = { note ~ accidental? ~ quality? ~ (extension*)? }
+
+chord_elements = { key ~ quality? ~ (extension*)? }
 note = { ("A" | "a" | "B"| "b" | "C" | "c" | "D" | "d" | "E" | "e" | "F" | "f" | "G" | "g" ) }
 sign = { accidental | literal_natural }
 accidental = { ("#" | "b" ) }
+key = { note ~ accidental? }
 literal_natural = { "nat" }
 quality = { ( "maj" | "min" | "dim" | "aug" | "sus" | "m" | "+") }
 extension = { sign? ~ NUMBER }
+
+slash = { "/" }
+slash_chord = { slash ~ key }
+
+chord = @{ ( chord_elements ~ slash_chord?) }
