@@ -1,0 +1,29 @@
+WHITESPACE = _{ " " | "\t" | "\r" | "\n" }
+
+song = { SOI ~ directive_list? ~ block+ ~ EOI }
+
+directive_list = { directive ~ directive* }
+directive = { "@" ~ name ~ ":" ~ value }
+
+block = { section_header ~ lyric_line+ }
+
+name = { ASCII_ALPHANUMERIC+}
+value = { (ASCII_ALPHANUMERIC | WHITE_SPACE | "," | "/")* }
+
+section_header = {"#" ~ ASCII_ALPHANUMERIC+ }
+
+lyric_line = { (measure | lyric_block) }
+measure = { "|" ~ (chord_token | text_token)+ ~ "|" }
+lyric_block = { !"|" ~ (chord_token | text_token) }
+chord_token = { !"|" ~ "[" ~ chord ~ "]"}
+text_token = { ( !"|" | !"[")  ~ (ASCII_ALPHANUMERIC | " " | PUNCTUATION )+ }
+chord = @{ ( chord_elements ~ slash_chord?) }
+slash = { "/" }
+slash_chord = { slash ~ chord_elements }
+chord_elements = { note ~ accidental? ~ quality? ~ (extension*)? }
+note = { ("A" | "a" | "B"| "b" | "C" | "c" | "D" | "d" | "E" | "e" | "F" | "f" | "G" | "g" ) }
+sign = { accidental | literal_natural }
+accidental = { ("#" | "b" ) }
+literal_natural = { "nat" }
+quality = { ( "maj" | "min" | "dim" | "aug" | "sus" | "m" | "+") }
+extension = { sign? ~ NUMBER }
