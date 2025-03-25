@@ -13,7 +13,6 @@ fn format_chord(chord: Chord) -> String {
     match chord.root.accidental {
         Accidental::Sharp => s.push('#'),
         Accidental::Flat => s.push('b'),
-        Accidental::Natural => s.push_str("♮"),
         Accidental::None => {}
     }
 
@@ -33,7 +32,6 @@ fn format_chord(chord: Chord) -> String {
         match bass.accidental {
             Accidental::Sharp => s.push('#'),
             Accidental::Flat => s.push('b'),
-            Accidental::Natural => s.push_str("♮"),
             Accidental::None => {}
         }
     }
@@ -43,43 +41,56 @@ fn format_chord(chord: Chord) -> String {
 pub fn render_song(song: &Song) -> String {
     let mut output = String::new();
     let declarative = &song.directives;
-    let blocks = &song.blocks;
-    let title = declarative.get("title").unwrap();
-    output.push_str(wrap_markdown("# ".to_string(), title.to_string(), "".to_string(), true).as_str());
-    let artist = declarative.get("artist").unwrap();
-    output.push_str(wrap_markdown("* ".to_string(), artist.to_string(), " *".to_string(), true).as_str());
-    for block in blocks {
-        output.push_str(wrap_markdown("## ".to_string(), block.section_name.clone(), "".to_string(), true).as_str());
-        let mut chord_line = String::new();
-        let mut lyric_line = String::new();
+    let blocks = &song.blocks; // Assuming typo fixed to song.blocks
 
-        for line in block.lines.iter() {
-            for segment in line.segments.iter() {
+    // Render title and artist
+    let title = declarative.get("title").unwrap();
+    output.push_str(&wrap_markdown("# ".to_string(), title.to_string(), "".to_string(), true));
+    if let Some(artist) = declarative.get("artist") {
+        output.push_str(&wrap_markdown("* ".to_string(), artist.to_string(), " *".to_string(), true));
+    }
+
+    // Render each block
+    for block in blocks {
+        // Strip leading # from section name
+        let section_name = block.section_name.trim_start_matches('#');
+        output.push_str(&wrap_markdown("## ".to_string(), section_name.to_string(), "".to_string(), true));
+
+        // Accumulate chords and lyrics for each line
+        for line in &block.lines {
+            let mut chord_line = String::new();
+            let mut lyric_line = String::new();
+
+            for segment in &line.segments {
                 match segment {
                     Segment::Measure(chords_or_text) | Segment::Inline(chords_or_text) => {
                         for ct in chords_or_text {
                             match ct {
                                 ChordOrText::Chord(chord) => {
                                     let chord_string = format_chord(chord.clone());
-                                    chord_line.push_str(&format!("{:<width$}", chord_string, width=chord_string.len()));
-                                    lyric_line.push_str(&" ".repeat(chord_string.len()));
+                                    // Use a fixed width for better alignment (e.g., 8 chars)
+                                    chord_line.push_str(&format!("{:<8}", chord_string));
+                                    lyric_line.push_str(&" ".repeat(chord_string.len().min(8)));
                                 }
                                 ChordOrText::Text(text) => {
                                     chord_line.push_str(&" ".repeat(text.len()));
-                                    lyric_line.push_str(&text);
+                                    lyric_line.push_str(text);
                                 }
                             }
-
-                            chord_line.push_str("  ");
-                            lyric_line.push_str("  ");
                         }
                     }
                 }
-                output.push_str(wrap_markdown("| ".to_string(), chord_line.clone(), "| ".to_string(), false).as_str());
-                output.push_str(wrap_markdown("| ".to_string(), lyric_line.clone(), "| ".to_string(), false).as_str());
-                chord_line = String::new();
-                lyric_line = String::new();
             }
+            // Add the completed line to output
+            if !chord_line.trim().is_empty() {
+                output.push_str(&chord_line);
+                output.push('\n');
+            }
+            if !lyric_line.trim().is_empty() {
+                output.push_str(&lyric_line);
+                output.push('\n');
+            }
+            output.push('\n'); // Extra newline between lines
         }
     }
     output

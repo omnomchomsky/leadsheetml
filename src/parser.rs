@@ -13,7 +13,7 @@ pub fn parse_song_from_str(input: &str) -> Song {
     parsed_song
 }
 
-fn parse_song(unparsed_song: pest::iterators::Pair<Rule>) -> Song {
+pub fn parse_song(unparsed_song: pest::iterators::Pair<Rule>) -> Song {
     let mut directives:HashMap<String, String> =  HashMap::new();
     let mut blocks:Vec<Block> = Vec::new();
     for song_elements in unparsed_song.into_inner() {
@@ -24,8 +24,8 @@ fn parse_song(unparsed_song: pest::iterators::Pair<Rule>) -> Song {
                     directives.insert(directive.name, directive.value);
                 }
             }
-            Rule::block => {
-                blocks.push(parse_block(song_elements));
+            Rule::blocks => {
+                blocks = parse_blocks(song_elements);
             }
             _ => { }
         }
@@ -36,7 +36,7 @@ fn parse_song(unparsed_song: pest::iterators::Pair<Rule>) -> Song {
     }
 }
 
-fn parse_directive(unparsed_directive: pest::iterators::Pair<Rule>) -> Directive {
+pub fn parse_directive(unparsed_directive: pest::iterators::Pair<Rule>) -> Directive {
     let mut directive_name = "";
     let mut deirective_value = "";
     for directive_elements in unparsed_directive.into_inner() {
@@ -56,7 +56,7 @@ fn parse_directive(unparsed_directive: pest::iterators::Pair<Rule>) -> Directive
     }
 }
 
-fn parse_blocks(unparsed_blocks: pest::iterators::Pair<Rule>) -> Vec<Block> {
+pub fn parse_blocks(unparsed_blocks: pest::iterators::Pair<Rule>) -> Vec<Block> {
     let mut blocks = Vec::new();
     for block in unparsed_blocks.into_inner() {
         let parsed_block = parse_block(block);
@@ -65,7 +65,7 @@ fn parse_blocks(unparsed_blocks: pest::iterators::Pair<Rule>) -> Vec<Block> {
     blocks
 }
 
-fn parse_block(unparsed_block: pest::iterators::Pair<Rule>) -> Block {
+pub fn parse_block(unparsed_block: pest::iterators::Pair<Rule>) -> Block {
     let mut section_name = "";
     let mut lines:Vec<LyricLine> = Vec::new();
     for block_element in unparsed_block.into_inner() {
@@ -85,7 +85,7 @@ fn parse_block(unparsed_block: pest::iterators::Pair<Rule>) -> Block {
     }
 }
 
-fn parse_line(unparsed_line: pest::iterators::Pair<Rule>) -> LyricLine {
+pub fn parse_line(unparsed_line: pest::iterators::Pair<Rule>) -> LyricLine {
     let mut segments:Vec<Segment> = Vec::new();
     for line in unparsed_line.into_inner() {
         match line.as_rule() {
@@ -103,48 +103,60 @@ fn parse_line(unparsed_line: pest::iterators::Pair<Rule>) -> LyricLine {
     LyricLine{ segments }
 }
 
-fn parse_measure(unparsed_measure: pest::iterators::Pair<Rule>) -> Segment {
-    let unparsed_chords_or_text = unparsed_measure.into_inner().next().unwrap();
-    let parsed_chords_or_text = parse_chords_or_text(unparsed_chords_or_text);
-    Segment::Measure(parsed_chords_or_text)
+pub fn parse_measure(unparsed_measure: pest::iterators::Pair<Rule>) -> Segment {
+    let chords_or_text = parse_line_lyric(unparsed_measure);
+    Segment::Measure(chords_or_text)
 }
 
-fn parse_lyric_block(unparsed_lyric_block: pest::iterators::Pair<Rule>) -> Segment {
-    let unparsed_chords_or_text = unparsed_lyric_block.into_inner().next().unwrap();
-    let parsed_chords_or_text = parse_chords_or_text(unparsed_chords_or_text);
-    Segment::Inline(parsed_chords_or_text)
+pub fn parse_lyric_block(unparsed_lyric_block: pest::iterators::Pair<Rule>) -> Segment {
+    let chords_or_text = parse_line_lyric(unparsed_lyric_block);
+    Segment::Inline(chords_or_text)
 }
-
-fn parse_chords_or_text(unparsed_chords_or_text: pest::iterators::Pair<Rule>) -> Vec<ChordOrText> {
+pub fn parse_line_lyric(unparsed_measure: pest::iterators::Pair<Rule>) -> Vec<ChordOrText> {
     let mut chords_or_text:Vec<ChordOrText> = Vec::new();
-    for unparsed_chord_or_text in unparsed_chords_or_text.into_inner() {
-        match unparsed_chord_or_text.as_rule() {
-            Rule::chord => {
-                let parsed_chord = parse_chord(unparsed_chord_or_text);
-                chords_or_text.push(ChordOrText::Chord(parsed_chord))
+    for measure_element in unparsed_measure.into_inner() {
+        match measure_element.as_rule() {
+            Rule::chord_or_text => {
+                let chord_or_text = parse_chords_or_text(measure_element);
+                chords_or_text.push(chord_or_text);
             }
-            Rule::text_token => {
-                let parsed_text_token = parse_text_token(unparsed_chord_or_text);
-                chords_or_text.push(parsed_text_token)
-            }
-            _ => { panic!("Invalid chord or text: {:?}", unparsed_chord_or_text.as_rule())}
+            _ => { panic!("Invalid measure element: {:?}", measure_element.as_rule())}
         }
     }
     chords_or_text
 }
 
-fn parse_text_token(unparsed_text_token: pest::iterators::Pair<Rule>) -> ChordOrText {
+
+pub fn parse_chords_or_text(unparsed_chords_or_text: pest::iterators::Pair<Rule>) -> ChordOrText {
+    let mut chord_or_text:ChordOrText = ChordOrText::Text("".to_string());
+    for unparsed_chord_or_text in unparsed_chords_or_text.into_inner() {
+        match unparsed_chord_or_text.as_rule() {
+            Rule::chord_token => {
+                let parsed_chord = parse_chord_token(unparsed_chord_or_text);
+                chord_or_text = ChordOrText::Chord(parsed_chord)
+            }
+            Rule::text_token => {
+                let parsed_text_token = parse_text_token(unparsed_chord_or_text);
+                chord_or_text = parsed_text_token
+            }
+            _ => { panic!("Invalid chord or text: {:?}", unparsed_chord_or_text.as_rule())}
+        }
+    }
+    chord_or_text
+}
+
+pub fn parse_text_token(unparsed_text_token: pest::iterators::Pair<Rule>) -> ChordOrText {
     let text = unparsed_text_token.as_str().to_string();
     ChordOrText::Text(text)
 }
 
-fn parse_chord_token(unparsed_chord: pest::iterators::Pair<Rule>) -> Chord {
-    let chord_elements = unparsed_chord.into_inner().next().unwrap();;
+pub fn parse_chord_token(unparsed_chord: pest::iterators::Pair<Rule>) -> Chord {
+    let chord_elements = unparsed_chord.into_inner().next().unwrap();
     let parsed_chord = parse_chord(chord_elements);
     parsed_chord
 }
 
-fn parse_chord(unparsed_chord: pest::iterators::Pair<Rule>) -> Chord {
+pub fn parse_chord(unparsed_chord: pest::iterators::Pair<Rule>) -> Chord {
     let mut chord = Chord {
         root: Note {
             letter: NoteLetter::A,
@@ -155,13 +167,13 @@ fn parse_chord(unparsed_chord: pest::iterators::Pair<Rule>) -> Chord {
         bass: None
     };
     for chord_element in unparsed_chord.into_inner() {
-        println!("{:?}", chord_element.as_rule());
         match chord_element.as_rule() {
-            Rule::chord_elements => {
+            Rule::chord_elements=> {
                 chord = parse_chord_element(chord_element)
             }
             Rule::slash_chord => {
-                chord.bass = parse_slash_chord(chord_element);
+                let slash_chord_note = parse_slash_chord(chord_element);
+                chord.bass = slash_chord_note;
             }
             _ => { panic!("Invalid chord element: {:?}", chord_element.as_rule())}
         }
@@ -169,28 +181,28 @@ fn parse_chord(unparsed_chord: pest::iterators::Pair<Rule>) -> Chord {
     chord
 }
 
-fn parse_slash_chord(unparsed_slash_chord_note: pest::iterators::Pair<Rule>) -> Option<Note> {
-    let slash_chord_elements = unparsed_slash_chord_note.into_inner().next().unwrap();
+pub fn parse_slash_chord(unparsed_slash_chord_note: pest::iterators::Pair<Rule>) -> Option<Note> {
+    let slash_chord_elements = unparsed_slash_chord_note.into_inner().skip(1).next().unwrap();
     let parsed_slash_chord_note = parse_note(slash_chord_elements);
     Some(parsed_slash_chord_note)
 }
 
 
-fn parse_chord_element(unparsed_chord_elements: pest::iterators::Pair<Rule>) -> Chord {
+pub fn parse_chord_element(unparsed_chord_elements: pest::iterators::Pair<Rule>) -> Chord {
     let mut root =  Note {
         letter: NoteLetter::A,
         accidental: Accidental::None,
     };
-    let mut quality:String = "".to_string();
+    let mut quality:Option<String> = None;
     let mut extensions:Vec<Option<String>> = Vec::new();
 
     for chord_element in unparsed_chord_elements.into_inner() {
         match chord_element.as_rule() {
-            Rule::note => {
+            Rule::key => {
                 root = parse_note(chord_element)
             }
             Rule::quality => {
-                quality = chord_element.as_str().to_string();
+                quality = parse_quality(chord_element);
             }
             Rule::extension => {
                 extensions.push(parse_extension(chord_element))
@@ -200,13 +212,13 @@ fn parse_chord_element(unparsed_chord_elements: pest::iterators::Pair<Rule>) -> 
     }
     Chord {
         root,
-        quality: Some(quality),
+        quality,
         extensions,
         bass: None
     }
 }
 
-fn parse_note(unparsed_note: pest::iterators::Pair<Rule>) -> Note {
+pub fn parse_note(unparsed_note: pest::iterators::Pair<Rule>) -> Note {
     let mut note = Note {
         letter: NoteLetter::A,
         accidental: Accidental::None
@@ -225,7 +237,7 @@ fn parse_note(unparsed_note: pest::iterators::Pair<Rule>) -> Note {
     note
 }
 
-fn parse_letter(unparsed_letter: pest::iterators::Pair<Rule>) -> NoteLetter {
+pub fn parse_letter(unparsed_letter: pest::iterators::Pair<Rule>) -> NoteLetter {
     let letter = unparsed_letter.as_str();
     match letter {
         "A" => NoteLetter::A,
@@ -246,7 +258,7 @@ fn parse_letter(unparsed_letter: pest::iterators::Pair<Rule>) -> NoteLetter {
     }
 }
 
-fn parse_accidental(unparsed_accidental: pest::iterators::Pair<Rule>) -> Accidental {
+pub fn parse_accidental(unparsed_accidental: pest::iterators::Pair<Rule>) -> Accidental {
     let accidental = unparsed_accidental.as_str();
     match accidental {
         "#" => Accidental::Sharp,
@@ -255,7 +267,19 @@ fn parse_accidental(unparsed_accidental: pest::iterators::Pair<Rule>) -> Acciden
     }
 }
 
-fn parse_extension(unparsed_extension: pest::iterators::Pair<Rule>) -> Option<String> {
+pub fn parse_quality(unparsed_quality: pest::iterators::Pair<Rule>) -> Option<String> {
+    let quality = unparsed_quality.as_str();
+    match quality {
+        "maj" => Some("maj".to_string()),
+        "min" => Some("min".to_string()),
+        "dim" => Some("dim".to_string()),
+        "aug" => Some("aug".to_string()),
+        "m" => Some("m".to_string()),
+        "+" => Some("+".to_string()),
+        _ => None
+    }
+}
+pub fn parse_extension(unparsed_extension: pest::iterators::Pair<Rule>) -> Option<String> {
     let extension = unparsed_extension.as_str();
     match extension {
         "7" => Some("7".to_string()),

@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::iter::Map;
 
 #[derive(Debug)]
 pub struct Song {
@@ -51,13 +50,12 @@ pub struct Note {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum NoteLetter {
-    A, B, C, D, E, F, G,
+    A, B, C, D, E, F, G
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Accidental {
     Sharp,
     Flat,
-    Natural,
     None,
 }
