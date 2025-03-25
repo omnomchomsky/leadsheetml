@@ -20,7 +20,7 @@ measure = { "|" ~ chord_or_text+ ~ "|" }
 lyric_block = { !"|" ~ chord_or_text+ }
 chord_or_text = { ( chord_token | text_token) }
 chord_token = {  "[" ~ chord ~ "]" }
-text_token = { (!("[" | "|" | section_header_start ) ~ ANY)+ }
+text_token = { (!("[" | "|" | section_header_start ) ~ ANY)+ ~ NEWLINE?}
 
 chord = { ( chord_elements ~ slash_chord?) }
 chord_elements = { key ~ quality? ~ (extension*)? }
