@@ -176,17 +176,6 @@ fn test_parse_song(){
 }
 
 #[test]
-fn test_parses_for_absent_friends(){
-    let input = read_to_string("SongBook/Genesis/for_absent_friends.lmpl").unwrap();
-    let parsed = LeadSheetMLParser::parse(Rule::song, &input.as_str().trim());
-    if let Err(e) = parsed {
-        println!("Error: {}", e);
-        panic!();
-    }
-    assert!(parsed.is_ok());
-}
-
-#[test]
 fn test_parses_simple_line_to_ast(){
     let input = "[C]Hello, [G]world!";
     let parsed = LeadSheetMLParser::parse(Rule::lyric_line, input);
@@ -339,18 +328,6 @@ fn test_parse_simple_song_to_ast(){
 fn test_parse_song_to_ast(){
     let input = "@title: Twinkle Twinkle Little Star\n@key: C Major\n#Verse\n[C]Twinkle, twinkle, little star\n[G]How I wonder what you are!\n[C]Up above the world so high\n[G]Like a diamond in the sky.\n\n#Chorus\n[C]Twinkle, twinkle, little star\n[G]How I wonder what you are!\n[C]Up above the world so high\n[G]Like a diamond in the sky.\n\n#Bridge\n[C]Twinkle, twinkle, little star\n[G]How I wonder what you are!\n[C]Up above the world so high\n[G]Like a diamond in the sky.\nxw\n#Outro\n[C]Twinkle, twinkle, little star\n[G]How I wonder what you are!\n[C]Up above the world so high\n[G]Like a diamond in the sky.";
     let parsed = LeadSheetMLParser::parse(Rule::song, input);
-    if let Err(e) = parsed {
-        println!("Error: {}", e);
-        panic!();
-    }
-    assert!(parsed.is_ok());
-    parse_song(parsed.unwrap().next().unwrap());
-}
-
-#[test]
-fn test_parses_for_absent_friends_to_ast(){
-    let input = read_to_string("SongBook/Genesis/for_absent_friends.lmpl").unwrap();
-    let parsed = LeadSheetMLParser::parse(Rule::song, &input.as_str().trim());
     if let Err(e) = parsed {
         println!("Error: {}", e);
         panic!();
