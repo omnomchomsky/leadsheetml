@@ -9,3 +9,5 @@ pest_derive = "2.7.15"
 markup_engine = { path = "../markup_engine" }
 clap = { version = "4.5.32", features = ["derive"] }
 
+[patch.crates-io]
+markup_engine = { path = "markup_engine" }
