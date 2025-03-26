@@ -21,6 +21,7 @@ jobs:
 
       - name: Add static file
         run: | 
+          pwd
           mv ./.cargo/SuperCargo.toml Cargo.toml
 
       - name: Checkout Markup Engine
