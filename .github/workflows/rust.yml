@@ -15,12 +15,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Add static file
-        run: |
-          echo "[workspace]\nmembers = ["markup_engine",\n"leadsheetml",\n]" > ../Cargo.toml
 
       - name: Checkout Repo
         uses: actions/checkout@v4
+
+      - name: Add static file
+        run: | 
+          mv .cargo/SuperCargo.toml ../Cargo.toml
 
       - name: Checkout Markup Engine
         uses: actions/checkout@v4
