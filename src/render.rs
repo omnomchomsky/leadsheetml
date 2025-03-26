@@ -1,5 +1,4 @@
 use crate::ast::*;
-use markdown::to_html;
 use markup_engine::engine::MarkupEngine;
 
 
