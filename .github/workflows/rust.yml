@@ -25,6 +25,9 @@ jobs:
           repository: omnomchomsky/markup_engine
           path: ./markup_engine
 
+      - name: Move markup_engine
+        run: |
+          mv ./markup_engine ../
       - name: Build
         run: cargo build --verbose
 
