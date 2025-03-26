@@ -17,8 +17,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: acrions/checkout@v4
-      repository: omnomchomsky/markup_engine
-      path: ../
+      with:
+        repository: omnomchomsky/markup_engine
+        path: ../
     - name: Build
       run: cargo build --verbose
     - name: Run tests
