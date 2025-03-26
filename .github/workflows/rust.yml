@@ -21,7 +21,7 @@ jobs:
 
       - name: Add static file
         run: | 
-          mv ./leadsheetml/.cargo/SuperCargo.toml Cargo.toml
+          mv ./.cargo/SuperCargo.toml Cargo.toml
 
       - name: Checkout Markup Engine
         uses: actions/checkout@v4
