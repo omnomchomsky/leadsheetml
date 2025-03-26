@@ -1,4 +1,4 @@
-name: Rust
+name: Build and Run LeadSheet Tests
 
 on:
   push:
