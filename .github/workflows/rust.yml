@@ -19,11 +19,6 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v4
 
-      - name: Add static file
-        run: | 
-          pwd
-          mv ./.cargo/SuperCargo.toml Cargo.toml
-
       - name: Checkout Markup Engine
         uses: actions/checkout@v4
         with:
