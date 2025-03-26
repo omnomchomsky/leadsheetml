@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: Add static file
         run: |
-          echo "[workspace]\nmembers = ["markup_engine",\n"leadsheetml",\n]" > Cargo.toml
+          echo "[workspace]\nmembers = ["markup_engine",\n"leadsheetml",\n]" > ../Cargo.toml
 
       - name: Checkout Repo
         uses: actions/checkout@v4
