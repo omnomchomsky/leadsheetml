@@ -15,13 +15,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Add static file
+        run: |
+          echo "[workspace]\nmembers = ["markup_engine",\n"leadsheetml",\n]" > Cargo.toml
 
-      - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Checkout Markup Engine
+        uses: actions/checkout@v4
         with:
           repository: omnomchomsky/markup_engine
           path: ./markup_engine
+
       - name: Build
         run: cargo build --verbose
+
       - name: Run tests
         run: cargo test --verbose
