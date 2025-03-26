@@ -15,11 +15,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       - uses: actions/checkout@v4
-        with:
-          repository: omnomchomsky/markup_engine
-          path: ../
       - uses: actions/checkout@v4
+      with:
+        repository: omnomchomsky/markup_engine
+        path: ./markup_engine
       - name: Build
         run: cargo build --verbose
       - name: Run tests
