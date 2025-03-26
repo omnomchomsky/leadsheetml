@@ -18,9 +18,9 @@ jobs:
 
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
-      with:
-        repository: omnomchomsky/markup_engine
-        path: ./markup_engine
+        with:
+          repository: omnomchomsky/markup_engine
+          path: ./markup_engine
       - name: Build
         run: cargo build --verbose
       - name: Run tests
