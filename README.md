@@ -84,4 +84,7 @@ git clone https://github.com/omnomchomsky/markup_engine
 
 Then in your Cargo.toml, make sure the dependency points to the local path:
 
+```
+[dependencies]
 markup_engine = { path = "../markup_engine" }
+```
