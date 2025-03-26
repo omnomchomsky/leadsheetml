@@ -4,7 +4,7 @@ use std::fs;
 use pest::Parser;
 use leadsheetml::parser::*;
 use leadsheetml::ast::*;
-use leadsheetml::markdown::*;
+use leadsheetml::render::*;
 
 #[test]
 fn test_parses_simple_line(){

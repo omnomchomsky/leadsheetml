@@ -6,3 +6,6 @@ edition = "2024"
 [dependencies]
 pest = "2.7.15"
 pest_derive = "2.7.15"
+markdown = "1.0.0-alpha.23"
+markup_engine = { path = "../markup_engine" }
+clap = { version = "4.5.32", features = ["derive"] }
