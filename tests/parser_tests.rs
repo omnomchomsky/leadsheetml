@@ -5,6 +5,7 @@ use pest::Parser;
 use leadsheetml::parser::*;
 use leadsheetml::ast::*;
 use leadsheetml::render::*;
+use markup_engine::{HtmlEngine, MarkdownEngine};
 
 #[test]
 fn test_parses_simple_line(){
@@ -368,7 +369,9 @@ fn test_parse_simple_song_to_ml(){
     }
     assert!(parsed.is_ok());
     let song = parse_song(parsed.unwrap().next().unwrap());
-    println!("{}", render_song(&song))
+    let engine = MarkdownEngine;
+    let md = DefaultLeadSheetRenderer.render_song(&engine, &song);
+    println!("{}", md)
 }
 
 #[test]
@@ -381,18 +384,37 @@ fn test_parse_song_to_ml(){
     }
     assert!(parsed.is_ok());
     let song = parse_song(parsed.unwrap().next().unwrap());
-    println!("{}", render_song(&song))
+    let engine = MarkdownEngine;
+    let md = DefaultLeadSheetRenderer.render_song(&engine, &song);
+    println!("{}", md)
 }
 
 #[test]
-fn test_parses_for_absent_friends_to_ml(){
-    let input = read_to_string("SongBook/Genesis/for_absent_friends.lmpl").unwrap();
-    let parsed = LeadSheetMLParser::parse(Rule::song, &input.as_str().trim());
+fn test_parse_simple_song_to_html(){
+    let input = "@title: Hello, Word\n#Intro\n| [C]Hello, world! |";
+    let parsed = LeadSheetMLParser::parse(Rule::song, input);
     if let Err(e) = parsed {
         println!("Error: {}", e);
         panic!();
     }
     assert!(parsed.is_ok());
     let song = parse_song(parsed.unwrap().next().unwrap());
-    println!("{}", render_song(&song))
+    let engine = HtmlEngine;
+    let md = DefaultLeadSheetRenderer.render_song(&engine, &song);
+    println!("{}", md)
+}
+
+#[test]
+fn test_parse_song_to_html(){
+    let input = "@title: Twinkle Twinkle Little Star\n@key: C Major\n#Verse\n[C]Twinkle, twinkle, little star\n[G]How I wonder what you are!\n[C]Up above the world so high\n[G]Like a diamond in the sky.\n\n#Chorus\n[C]Twinkle, twinkle, little star\n[G]How I wonder what you are!\n[C]Up above the world so high\n[G]Like a diamond in the sky.\n\n#Bridge\n[C]Twinkle, twinkle, little star\n[G]How I wonder what you are!\n[C]Up above the world so high\n[G]Like a diamond in the sky.\n\n#Outro\n[C]Twinkle, twinkle, little star\n[G]How I wonder what you are!\n[C]Up above the world so high\n[G]Like a diamond in the sky.";
+    let parsed = LeadSheetMLParser::parse(Rule::song, input);
+    if let Err(e) = parsed {
+        println!("Error: {}", e);
+        panic!();
+    }
+    assert!(parsed.is_ok());
+    let song = parse_song(parsed.unwrap().next().unwrap());
+    let engine = HtmlEngine;
+    let md = DefaultLeadSheetRenderer.render_song(&engine, &song);
+    println!("{}", md)
 }
