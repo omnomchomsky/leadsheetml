@@ -105,13 +105,6 @@ fn format_chord(chord: Chord) -> String {
     s
 }
 
-pub fn wrap_markdown(front:String, string:String, mut back:String, newline:bool) -> String {
-    if newline {
-        back.push('\n');
-    }
-    (front + &*string + &*back).to_string()
-}
-
 fn contains_newline(p0: &String) -> bool {
     p0.contains('\n')
 }

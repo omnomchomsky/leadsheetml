@@ -1,5 +1,5 @@
 use clap::Parser;
-use std::{fs, env};
+use std::{fs};
 use markup_engine::{HtmlEngine, MarkdownEngine};
 use render::DefaultLeadSheetRenderer;
 use crate::render::LeadSheetRenderer;
