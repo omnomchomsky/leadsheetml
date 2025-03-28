@@ -1,8 +1,10 @@
 use clap::Parser;
 use std::{fs};
+
 use markup_engine::{HtmlEngine, MarkdownEngine};
 use render::DefaultLeadSheetRenderer;
 use crate::render::LeadSheetRenderer;
+mod transpose;
 
 mod parser;
 mod ast;
@@ -18,6 +20,12 @@ struct Args {
     /// Output format (default is markdown)
     #[arg(long, value_parser = ["markdown", "html"], default_value = "markdown")]
     format: String,
+
+    #[arg(long, default_value_t = 0)]
+    transpose: isize,
+
+    #[arg(long, default_value_t = 0)]
+    transpose_down: isize
 }
 
 
@@ -30,7 +38,17 @@ fn main() {
     }
 
     let input = fs::read_to_string(&args.filename).expect("Failed to read input file");
-    let ast = parser::parse_song_from_str(&input);
+    let mut ast = parser::parse_song_from_str(&input);
+    if args.transpose != 0 {
+        ast = transpose::transpose_song(
+            ast,
+            args.transpose)
+    }
+    if args.transpose_down != 0 {
+        ast = transpose::transpose_song(
+            ast,
+            -args.transpose_down)
+    }
     match args.format.as_str() {
         "html" => {
             let html = DefaultLeadSheetRenderer.render_song(&HtmlEngine, &ast);

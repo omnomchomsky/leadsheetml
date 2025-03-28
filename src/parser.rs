@@ -233,6 +233,7 @@ pub fn parse_note(unparsed_note: pest::iterators::Pair<Rule>) -> Note {
             }
             _ => { panic!("Invalid note element: {:?}", note_element.as_rule())}
         }
+
     }
     note
 }
