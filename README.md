@@ -56,6 +56,9 @@ leadsheet SongBook/examples/TwinkleTwinkleAdvanced.impl --html #Generates HTML
 By default it will generate a markdown file, but it can also generate an html file with the `--format html` flag.
 `--format markdown` also works.
 
+##### Transposing
+To transpore a song simply add the argument `--transpose` followed by the number of steps shift the song by. To transpose down, pass `transpose_down`.
+
 ### Philosophy
 LeadSheetML is designed to be extensible and hackable you can build renderers, analyzers, transposers,
 or even melody engines on top of it. It's part of a larger vision (code-named MuTeX) to create high-quality,
@@ -65,8 +68,8 @@ text-native musical tooling.
 - Markdown & HTML (Completed)
 - Full parser & AST structure (Completed)
 - Modular rendering engine via traits (Completed)
-- Transposition Engine (Up next)
-- Voice/Melody Encoding (Coming soon)
+- Transposition Engine (Completed)
+- Voice/Melody Encoding (Up next)
 - Syntax Highlighting/VSCode/vim/Intellij Plugins
 - PDF rendering
 - Web Editor

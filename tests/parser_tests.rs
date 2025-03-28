@@ -5,6 +5,7 @@ use pest::Parser;
 use leadsheetml::parser::*;
 use leadsheetml::ast::*;
 use leadsheetml::render::*;
+use leadsheetml::transpose::*;
 use markup_engine::{HtmlEngine, MarkdownEngine};
 
 #[test]
@@ -393,5 +394,31 @@ fn test_parse_song_to_html(){
     let song = parse_song(parsed.unwrap().next().unwrap());
     let engine = HtmlEngine;
     let md = DefaultLeadSheetRenderer.render_song(&engine, &song);
+    println!("{}", md)
+}
+
+#[test]
+fn parse_note_from_str() {
+    let input = "A";
+    let parsed = LeadSheetMLParser::parse(Rule::note, input);
+    assert!(parsed.is_ok());
+    parse_note(parsed.unwrap().next().unwrap());
+}
+
+#[test]
+fn test_transpose_c_major_up_2() {
+    let song = parse_song_from_str("
+    @title: Test
+    @key: C Major
+
+    #Verse
+    [C] Hello [F] World
+    ");
+
+    let transposed = transpose_song(song, 2);
+    let key = transposed.directives.get("key").unwrap();
+    assert_eq!(key, "D Major");
+    let engine = MarkdownEngine;
+    let md = DefaultLeadSheetRenderer.render_song(&engine, &transposed);
     println!("{}", md)
 }
