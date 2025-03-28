@@ -30,9 +30,10 @@ fn transpose_chord(chord: Chord, steps: usize) -> Chord {
     let new_quality = chord.quality.clone();
     Chord {
         root: new_root,
-        bass: new_bass,
-        extensions: new_extensions,
+        inversion: chord.inversion,
         quality: new_quality,
+        extensions: new_extensions,
+        bass: new_bass,
     }
 }
 

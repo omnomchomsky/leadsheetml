@@ -162,6 +162,7 @@ pub fn parse_chord(unparsed_chord: pest::iterators::Pair<Rule>) -> Chord {
             letter: NoteLetter::A,
             accidental: Accidental::None,
         },
+        inversion: None,
         quality: None,
         extensions: Vec::new(),
         bass: None
@@ -195,11 +196,15 @@ pub fn parse_chord_element(unparsed_chord_elements: pest::iterators::Pair<Rule>)
     };
     let mut quality:Option<String> = None;
     let mut extensions:Vec<Option<String>> = Vec::new();
+    let mut inversion:Option<String> = None;
 
     for chord_element in unparsed_chord_elements.into_inner() {
         match chord_element.as_rule() {
             Rule::key => {
                 root = parse_note(chord_element)
+            }
+            Rule::inversion => {
+                inversion = parse_inversion(chord_element)
             }
             Rule::quality => {
                 quality = parse_quality(chord_element);
@@ -212,6 +217,7 @@ pub fn parse_chord_element(unparsed_chord_elements: pest::iterators::Pair<Rule>)
     }
     Chord {
         root,
+        inversion,
         quality,
         extensions,
         bass: None
@@ -268,6 +274,14 @@ pub fn parse_accidental(unparsed_accidental: pest::iterators::Pair<Rule>) -> Acc
     }
 }
 
+pub fn parse_inversion(unparsed_inversion: pest::iterators::Pair<Rule>) -> Option<String> {
+    let inversion = unparsed_inversion.as_str();
+    match inversion {
+        "6" => Some("6".to_string()),
+        "6/9" => Some("6/9".to_string()),
+        _ => None
+    }
+}
 pub fn parse_quality(unparsed_quality: pest::iterators::Pair<Rule>) -> Option<String> {
     let quality = unparsed_quality.as_str();
     match quality {

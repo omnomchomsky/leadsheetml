@@ -37,9 +37,10 @@ pub enum ChordOrText {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Chord {
     pub root: Note,
-    pub quality: Option<String>,     // "maj", "min", "dim", etc.
+    pub inversion: Option<String>,         //6, 6/9
+    pub quality: Option<String>,           // "maj", "min", "dim", etc.
     pub extensions: Vec<Option<String>>,   // "7", "9", "b5", etc.
-    pub bass: Option<Note>,          // For slash chords
+    pub bass: Option<Note>,                // For slash chords
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

@@ -29,7 +29,7 @@ accidental = @{ ("#" | "b" ) }
 key = { note ~ accidental? }
 literal_natural = @{ "nat" }
 quality = @{ ( "maj" | "min" | "dim" | "aug" | "m" | "+") }
-inversion =  @{ "6" | "6/9" }
+inversion =  @{ "6/9" | "6" }
 extension = { sign? ~ ( NUMBER | "sus2" | "sus4" ) }
 sign = { accidental | literal_natural }
 
