@@ -19,16 +19,7 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v4
 
-      - name: Checkout Markup Engine
-        uses: actions/checkout@v4
-        with:
-          repository: omnomchomsky/markup_engine
-          path: ./markup_engine
-
-      - name: Move markup_engine
-        run: |
-          cp -R ./markup_engine ../
-      - name: Build
+     - name: Build
         run: cargo build --verbose
 
       - name: Run tests
