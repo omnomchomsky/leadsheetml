@@ -1,6 +1,4 @@
-use fs::read_to_string;
 use std::collections::HashMap;
-use std::fs;
 use pest::Parser;
 use leadsheetml::parser::*;
 use leadsheetml::ast::*;
@@ -203,6 +201,7 @@ fn test_parses_simple_chord_to_ast(){
             letter: NoteLetter::C,
             accidental: Accidental::None
         },
+        inversion: None,
         quality: None,
         extensions: Vec::new(),
         bass: None
@@ -224,7 +223,8 @@ fn test_parse_complex_chords_to_ast(){
         letter: NoteLetter::C,
         accidental: Accidental::None
         },
-       quality: None,
+        inversion: None,
+        quality: None,
         extensions:Vec::new(),
         bass: Some(Note
         { letter: NoteLetter::G,
@@ -237,6 +237,7 @@ fn test_parse_complex_chords_to_ast(){
             letter: NoteLetter::C,
             accidental: Accidental::Sharp
         },
+        inversion: None,
         quality: Some("maj".to_string()),
         extensions: vec![Some("7".to_string()),Some("b5".to_string())],
         bass: None
@@ -406,19 +407,84 @@ fn parse_note_from_str() {
 }
 
 #[test]
-fn test_transpose_c_major_up_2() {
+fn test_transpose_dflat_major_up_5_semitones() {
     let song = parse_song_from_str("
     @title: Test
-    @key: C Major
+    @key: Db Major
 
     #Verse
-    [C] Hello [F] World
+    [Db] Hello [Gb] World
     ");
 
-    let transposed = transpose_song(song, 2);
+    let transposed = transpose_song(song, 5);
     let key = transposed.directives.get("key").unwrap();
-    assert_eq!(key, "D Major");
+    assert_eq!(key, "Gb Major");
     let engine = MarkdownEngine;
     let md = DefaultLeadSheetRenderer.render_song(&engine, &transposed);
     println!("{}", md)
+}
+
+#[test]
+fn test_transpose_csharp_minor_down_13_semitones() {
+    let song = parse_song_from_str("
+    @title: Test
+    @key: C# Minor
+
+    #Verse
+    [C#m] Hello [F#m] World
+    ");
+
+    let transposed = transpose_song(song, -13);
+    let key = transposed.directives.get("key").unwrap();
+    assert_eq!(key, "C Minor");
+    let engine = MarkdownEngine;
+    let md = DefaultLeadSheetRenderer.render_song(&engine, &transposed);
+    println!("{}", md)
+}
+
+#[test]
+fn transposes_around_circle_of_fifths_and_back() {
+    let song_src = r#"
+@title: Test
+@key: C Major
+
+# Verse
+[C] Hello [G] World
+"#;
+
+    let mut song = parse_song_from_str(song_src);
+
+    // One step around the circle of fifths from C major, assuming your
+    // transposition prefers sharps until it hits Gb and then flats.
+    let expected_keys = [
+        "G Major",
+        "D Major",
+        "A Major",
+        "E Major",
+        "B Major",
+        "Gb Major",
+        "Db Major",
+        "Ab Major",
+        "Eb Major",
+        "Bb Major",
+        "F Major",
+        "C Major",
+    ];
+
+    for (i, expected) in expected_keys.iter().enumerate() {
+        song = transpose_song(song, 7); // +7 semitones = perfect fifth
+
+        let key = song
+            .directives
+            .get("key")
+            .expect("transposed song missing key directive");
+
+        assert_eq!(
+            key, expected,
+            "after {} fifth-step(s) expected key {}, got {}",
+            i + 1,
+            expected,
+            key,
+        );
+    }
 }

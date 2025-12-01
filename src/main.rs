@@ -12,6 +12,7 @@ mod render;
 
 #[derive(clap::Parser, Debug)]
 #[command(author, version, about, long_about = None)]
+
 struct Args {
     /// Path to the .lmpl file
     #[arg()]
@@ -32,7 +33,7 @@ struct Args {
 fn main() {
     let args = Args::parse();
 
-    if !args.filename.ends_with(".lmpl") {
+    if !args.filename.ends_with(".lsml") {
         eprintln!("Invalid file extension: {}", args.filename);
         std::process::exit(1);
     }

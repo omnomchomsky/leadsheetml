@@ -5,12 +5,10 @@ song = { SOI ~ directive_list? ~ blocks ~ EOI }
 directive_list = { directive ~ directive* }
 directive = { "@" ~ name ~ ":" ~ value }
 name = { ASCII_ALPHANUMERIC+}
-value = { (ASCII_ALPHANUMERIC | WHITE_SPACE | "," | "/")* }
+value = { ( key ~ ASCII_ALPHA* ) | (ASCII_ALPHANUMERIC | WHITESPACE | "," | "/")* }
 
 blocks = { block+ }
 block = { section_header ~ lyric_line+ }
-
-newline = _{ "\n" }
 
 section_header_start = { "#" }
 section_header = { section_header_start ~ ASCII_ALPHANUMERIC+  }
