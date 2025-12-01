@@ -7,4 +7,4 @@ edition = "2024"
 pest = "2.7.15"
 pest_derive = "2.7.15"
 clap = { version = "4.5.32", features = ["derive"] }
-markup_engine = { version = "0.1.0", path = "../markup_engine" }
+markup_engine = { version = "0.1.0" }
