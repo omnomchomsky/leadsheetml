@@ -19,7 +19,7 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v4
 
-     - name: Build
+      - name: Build
         run: cargo build --verbose
 
       - name: Run tests
