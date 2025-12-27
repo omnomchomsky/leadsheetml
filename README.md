@@ -48,8 +48,8 @@ leadsheetml <path-to-song>
 ```
 e.g.
 ```
-leadsheet SongBook/examples/TwinkleTwinkle.impl #Generates Markdown
-leadsheet SongBook/examples/TwinkleTwinkleAdvanced.impl --html #Generates HTML
+leadsheet SongBook/examples/TwinkleTwinkle.lsml #Generates Markdown
+leadsheet SongBook/examples/TwinkleTwinkleAdvanced.lsml --format html #Generates HTML
 
 ```
 
@@ -57,7 +57,7 @@ By default it will generate a markdown file, but it can also generate an html fi
 `--format markdown` also works.
 
 ##### Transposing
-To transpore a song simply add the argument `--transpose` followed by the number of steps shift the song by. To transpose down, pass `transpose_down`.
+To transpore a song simply add the argument `--transpose` followed by the number of steps shift the song by. To transpose down, pass `--transpose_down`.
 
 ### Philosophy
 LeadSheetML is designed to be extensible and hackable you can build renderers, analyzers, transposers,
@@ -69,25 +69,16 @@ text-native musical tooling.
 - Full parser & AST structure (Completed)
 - Modular rendering engine via traits (Completed)
 - Transposition Engine (Completed)
-- Voice/Melody Encoding (Up next)
-- Syntax Highlighting/VSCode/vim/Intellij Plugins
+- Syntax Highlighting/VSCode/vim/Intellij Plugins (Completed for VS Code)
 - PDF rendering
 - Web Editor
 
 ## Development
 
-
-
 To use or develop LeadSheetML, clone this repo and markup_engine:
 
 ```
 git clone https://github.com/omnomchomsky/leadsheetml
-git clone https://github.com/omnomchomsky/markup_engine
 ```
 
-Then in your Cargo.toml, make sure the dependency points to the local path:
-
-```
-[dependencies]
-markup_engine = { path = "../markup_engine" }
-```
+Basic cargo development should work out of the box.
