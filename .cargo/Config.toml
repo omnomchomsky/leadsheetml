@@ -1,2 +1,0 @@
-[patch.crates-io]
-markup_engine = { path = "markup_engine" }
