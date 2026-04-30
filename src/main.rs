@@ -9,6 +9,7 @@ mod transpose;
 mod parser;
 mod ast;
 mod render;
+mod diagnostics;
 
 #[derive(clap::Parser, Debug)]
 #[command(author, version, about, long_about = None)]

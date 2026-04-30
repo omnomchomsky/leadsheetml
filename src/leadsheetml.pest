@@ -21,15 +21,13 @@ chord_token = {  "[" ~ chord ~ "]" }
 text_token = { (!("[" | "|" | section_header_start ) ~ ANY)+ ~ NEWLINE?}
 
 chord = { ( chord_elements ~ slash_chord?) }
-chord_elements = { key ~ inversion? ~ quality?  ~ (extension*)? }
+chord_elements = { key ~ quality?  ~ (extension*)? }
 note = @{ ("A" | "a" | "B"| "b" | "C" | "c" | "D" | "d" | "E" | "e" | "F" | "f" | "G" | "g" ) }
 accidental = @{ ("#" | "b" ) }
+sign = { accidental | literal_natural }
 key = { note ~ accidental? }
 literal_natural = @{ "nat" }
 quality = @{ ( "maj" | "min" | "dim" | "aug" | "m" | "+") }
-inversion =  @{ "6/9" | "6" }
 extension = { sign? ~ ( NUMBER | "sus2" | "sus4" ) }
-sign = { accidental | literal_natural }
-
 slash = @{ "/" }
 slash_chord = { slash ~ key }
