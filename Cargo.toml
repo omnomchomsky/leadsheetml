@@ -6,5 +6,12 @@ edition = "2024"
 [dependencies]
 pest = "2.7.15"
 pest_derive = "2.7.15"
-clap = { version = "4.5.32", features = ["derive"] }
+clap = { version = "4.5.32", default-features = false, features = ["derive", "std"] }
 markup_engine = { version = "0.1.0" }
+
+[profile.release]
+opt-level = "z"
+lto = "fat"
+panic = "abort"
+codegen-units = 1
+strip = "symbols"

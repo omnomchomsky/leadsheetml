@@ -179,7 +179,7 @@ fn test_parses_simple_line_to_ast(){
     let input = "[C]Hello, [G]world!";
     let parsed = LeadSheetMLParser::parse(Rule::lyric_line, input);
     assert!(parsed.is_ok());
-    parse_line(parsed.unwrap().next().unwrap());
+    parse_line(parsed.unwrap().next().unwrap()).unwrap();
 }
 
 #[test]
@@ -187,7 +187,7 @@ fn test_parses_simple_measure_to_ast(){
     let input = "| [C]Hello, [G]world! |";
     let parsed = LeadSheetMLParser::parse(Rule::measure, input);
     assert!(parsed.is_ok());
-    parse_measure(parsed.unwrap().next().unwrap());
+    parse_measure(parsed.unwrap().next().unwrap()).unwrap();
 }
 
 #[test]
@@ -196,7 +196,7 @@ fn test_parses_simple_chord_to_ast(){
     let parsed = LeadSheetMLParser::parse(Rule::chord_token, input);
     assert!(parsed.is_ok());
     let parsed = parse_chord_token(parsed.unwrap().next().unwrap());
-    assert_eq!(parsed, Chord {
+    assert_eq!(parsed.unwrap(), Chord {
         root: Note {
             letter: NoteLetter::C,
             accidental: Accidental::None
@@ -218,7 +218,7 @@ fn test_parse_complex_chords_to_ast(){
     assert!(parsed2.is_ok());
     let parsed_chord = parse_chord_token(parsed.unwrap().next().unwrap());
     let parsed_chord2 = parse_chord_token(parsed2.unwrap().next().unwrap());
-    assert_eq!(parsed_chord, Chord {
+    assert_eq!(parsed_chord.unwrap(), Chord {
         root: Note {
         letter: NoteLetter::C,
         accidental: Accidental::None
@@ -230,9 +230,8 @@ fn test_parse_complex_chords_to_ast(){
         { letter: NoteLetter::G,
             accidental: Accidental::None
         }
-        )
-    });
-    assert_eq!(parsed_chord2, Chord{
+        )});
+    assert_eq!(parsed_chord2.unwrap(), Chord{
         root: Note {
             letter: NoteLetter::C,
             accidental: Accidental::Sharp
@@ -249,7 +248,7 @@ fn test_parses_simple_text_to_ast(){
     let input = "Hello, world!";
     let parsed = LeadSheetMLParser::parse(Rule::text_token, input);
     assert!(parsed.is_ok());
-    parse_text_token(parsed.unwrap().next().unwrap());
+    parse_text_token(parsed.unwrap().next().unwrap()).unwrap();
 }
 
 #[test]
@@ -257,7 +256,7 @@ fn test_parses_simple_directive_to_ast(){
     let input = "@title: Hello, world!";
     let parsed = LeadSheetMLParser::parse(Rule::directive, input);
     assert!(parsed.is_ok());
-    parse_directive(parsed.unwrap().next().unwrap());
+    parse_directive(parsed.unwrap().next().unwrap()).unwrap();
 }
 
 #[test]
@@ -265,7 +264,7 @@ fn test_parse_simple_note_to_ast(){
     let input = "A";
     let parsed = LeadSheetMLParser::parse(Rule::note, input);
     assert!(parsed.is_ok());
-    parse_note(parsed.unwrap().next().unwrap());
+    parse_note(parsed.unwrap().next().unwrap()).unwrap();
 }
 
 #[test]
@@ -275,7 +274,7 @@ fn test_parse_multiple_directives_to_ast(){
     assert!(parsed.is_ok());
     let mut directives:HashMap<String, String> = HashMap::new();
     for directive in parsed.unwrap().next().unwrap().into_inner() {
-        let parsed_directive = parse_directive(directive);
+        let parsed_directive = parse_directive(directive).unwrap();
         directives.insert(parsed_directive.name, parsed_directive.value);
     }
     assert_eq!(directives.get("title").unwrap(), "For Absent Friends");
@@ -297,7 +296,7 @@ fn test_parses_simple_section_header_to_ast(){
 fn test_parses_simple_block_to_ast(){
     let input = "#Intro\n| Hello, world! |";
     let parsed = LeadSheetMLParser::parse(Rule::block, input);
-    parse_block(parsed.unwrap().next().unwrap());
+    parse_block(parsed.unwrap().next().unwrap()).unwrap();
 }
 
 #[test]
@@ -305,7 +304,7 @@ fn test_parses_complex_block_to_ast(){
     let input = "#Verse\n[D] Sunday at [D/C#] six when they [D/C] close both the gates\n[D] A [Em] wi [D] dowed [Em]pair\n[D]Still [Em]sit[D]ting [A7]there,\n[G]Wonder [Em]if they're [A]late for [D]church\nAnd its [D/C#]cold, so they [D/C]fasten their coats\n[D]And [Em]cross [D]the [Em]grass, [D]theyre [Em]al[D]ways [A7]last.";
     let parsed = LeadSheetMLParser::parse(Rule::block, input);
     assert!(parsed.is_ok());
-    parse_block(parsed.unwrap().next().unwrap());
+    parse_block(parsed.unwrap().next().unwrap()).unwrap();
 }
 
 #[test]
@@ -323,7 +322,7 @@ fn test_parse_simple_song_to_ast(){
         panic!();
     }
     assert!(parsed.is_ok());
-    parse_song(parsed.unwrap().next().unwrap());
+    parse_song(parsed.unwrap().next().unwrap()).unwrap();
 }
 
 #[test]
@@ -335,7 +334,7 @@ fn test_parse_song_to_ast(){
         panic!();
     }
     assert!(parsed.is_ok());
-    parse_song(parsed.unwrap().next().unwrap());
+    parse_song(parsed.unwrap().next().unwrap()).unwrap();
 }
 
 #[test]
@@ -347,7 +346,7 @@ fn test_parse_simple_song_to_ml(){
         panic!();
     }
     assert!(parsed.is_ok());
-    let song = parse_song(parsed.unwrap().next().unwrap());
+    let song = parse_song(parsed.unwrap().next().unwrap()).unwrap();
     let engine = MarkdownEngine;
     let md = DefaultLeadSheetRenderer.render_song(&engine, &song);
     println!("{}", md)
@@ -362,7 +361,7 @@ fn test_parse_song_to_ml(){
         panic!();
     }
     assert!(parsed.is_ok());
-    let song = parse_song(parsed.unwrap().next().unwrap());
+    let song = parse_song(parsed.unwrap().next().unwrap()).unwrap();
     let engine = MarkdownEngine;
     let md = DefaultLeadSheetRenderer.render_song(&engine, &song);
     println!("{}", md)
@@ -377,7 +376,7 @@ fn test_parse_simple_song_to_html(){
         panic!();
     }
     assert!(parsed.is_ok());
-    let song = parse_song(parsed.unwrap().next().unwrap());
+    let song = parse_song(parsed.unwrap().next().unwrap()).unwrap();
     let engine = HtmlEngine;
     let md = DefaultLeadSheetRenderer.render_song(&engine, &song);
     println!("{}", md)
@@ -392,7 +391,7 @@ fn test_parse_song_to_html(){
         panic!();
     }
     assert!(parsed.is_ok());
-    let song = parse_song(parsed.unwrap().next().unwrap());
+    let song = parse_song(parsed.unwrap().next().unwrap()).unwrap();
     let engine = HtmlEngine;
     let md = DefaultLeadSheetRenderer.render_song(&engine, &song);
     println!("{}", md)
@@ -403,7 +402,7 @@ fn parse_note_from_str() {
     let input = "A";
     let parsed = LeadSheetMLParser::parse(Rule::note, input);
     assert!(parsed.is_ok());
-    parse_note(parsed.unwrap().next().unwrap());
+    parse_note(parsed.unwrap().next().unwrap()).unwrap();
 }
 
 #[test]
@@ -414,7 +413,7 @@ fn test_transpose_dflat_major_up_5_semitones() {
 
     #Verse
     [Db] Hello [Gb] World
-    ");
+    ").unwrap();
 
     let transposed = transpose_song(song, 5);
     let key = transposed.directives.get("key").unwrap();
@@ -432,7 +431,7 @@ fn test_transpose_csharp_minor_down_13_semitones() {
 
     #Verse
     [C#m] Hello [F#m] World
-    ");
+    ").unwrap();
 
     let transposed = transpose_song(song, -13);
     let key = transposed.directives.get("key").unwrap();
@@ -452,7 +451,7 @@ fn transposes_around_circle_of_fifths_and_back() {
 [C] Hello [G] World
 "#;
 
-    let mut song = parse_song_from_str(song_src);
+    let mut song = parse_song_from_str(song_src).unwrap();
 
     // One step around the circle of fifths from C major, assuming your
     // transposition prefers sharps until it hits Gb and then flats.
@@ -487,4 +486,12 @@ fn transposes_around_circle_of_fifths_and_back() {
             key,
         );
     }
+}
+
+#[test]
+fn test_invalid_chord_errors() {
+    let input = "[Z13] invalid chord";
+    let result = parse_song_from_str(input);
+
+    assert!(result.is_err());
 }

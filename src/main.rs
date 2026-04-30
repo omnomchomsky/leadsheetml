@@ -39,7 +39,7 @@ fn main() {
     }
 
     let input = fs::read_to_string(&args.filename).expect("Failed to read input file");
-    let mut ast = parser::parse_song_from_str(&input);
+    let mut ast = parser::parse_song_from_str(&input).expect("AST should be correct or fail");
     if args.transpose != 0 {
         ast = transpose::transpose_song(
             ast,
