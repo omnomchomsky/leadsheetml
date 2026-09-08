@@ -40,7 +40,7 @@ impl LeadSheetRenderer for DefaultLeadSheetRenderer {
 
                     pre_block_text.push_str(&engine.bold(&chord_line));
                     pre_block_text.push('\n');
-                    pre_block_text.push_str(&lyric_line);
+                    pre_block_text.push_str(&engine.line_segment(&lyric_line));
                     pre_block_text.push('\n');
                 }
             }
