@@ -129,6 +129,25 @@ fn relative_key(key: &str, semitones: isize) -> String {
 }
 
 pub fn transpose_song(song: Song, semitones: isize) -> Song {
+    let key = song.directives.get("key").cloned().or_else(|| {
+        song.blocks.iter()
+            .flat_map(|block| &block.lines)
+            .flat_map(|line| &line.segments)
+            .flat_map(|segment| match segment {
+                Segment::Measure(elements) | Segment::Inline(elements) => elements,
+            })
+            .find_map(|element| match element {
+                ChordOrText::Chord(chord) => {
+                    let root = note_to_string(chord.root.letter.clone(), chord.root.accidental.clone());
+                    let mode = match chord.quality.as_deref() {
+                        Some("m" | "min" | "dim" | "aug" | "+") => "Minor",
+                        _ => "Major",
+                    };
+                    Some(format!("{} {}", root, mode))
+                }
+                ChordOrText::Text(_) => None,
+            })
+    });
     let mut transposed_blocks = Vec::new();
 
     for block in song.blocks {
@@ -176,7 +195,9 @@ pub fn transpose_song(song: Song, semitones: isize) -> Song {
     }
 
     let mut new_directives = song.directives.clone();
-    new_directives.insert("key".to_string(), relative_key(song.directives.get("key").unwrap(), semitones));
+    if let Some(key) = key {
+        new_directives.insert("key".to_string(), relative_key(&key, semitones));
+    }
 
     Song {
         directives: new_directives,

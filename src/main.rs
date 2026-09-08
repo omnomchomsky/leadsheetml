@@ -19,7 +19,7 @@ struct Args {
     #[arg()]
     filename: String,
 
-    /// Output format (default is markdown)
+    /// Output format (default is Markdown)
     #[arg(long, value_parser = ["markdown", "html"], default_value = "markdown")]
     format: String,
 

@@ -495,3 +495,60 @@ fn test_invalid_chord_errors() {
 
     assert!(result.is_err());
 }
+
+#[test]
+fn test_does_not_panic_when_key_not_present() {
+    let sound_of_silence = "\
+@title: Sound Of Silence
+@artist: Paul Simon and Art Garfunkle
+
+#Verse 1
+
+[Am] Hello Darkness, my old [G]friend,
+I've come to talk to you a[Am]gain,
+...
+";
+    let song = parse_song_from_str(sound_of_silence).unwrap();
+    let transposed_song = transpose_song(song, 1);
+    assert_eq!(transposed_song.directives.get("key").unwrap(), "Bb Minor");
+    let engine = HtmlEngine;
+    let html = DefaultLeadSheetRenderer.render_song(&engine, &transposed_song);
+    println!("{}", html);
+}
+
+#[test]
+fn test_transpose_infers_key_from_first_chord() {
+    for (chord, expected) in [
+        ("C", "Db Major"),
+        ("Cmaj7", "Db Major"),
+        ("C7/G", "Db Major"),
+        ("Cm", "Db Minor"),
+        ("Cmin7", "Db Minor"),
+        ("Cdim7", "Db Minor"),
+        ("Caug", "Db Minor"),
+        ("C+", "Db Minor"),
+        ("F#m7/A", "G Minor"),
+        ("Bbm", "B Minor"),
+    ] {
+        for first_line in [format!("Lyrics [{chord}] here [G] later"), format!("| [{chord}] [G] | ")] {
+            let input = format!("#Intro\n... Lyrics only\n#Verse\n{first_line}\n");
+            let song = parse_song_from_str(&input).unwrap();
+            let transposed = transpose_song(song, 1);
+            assert_eq!(transposed.directives.get("key").unwrap(), expected, "{input}");
+        }
+    }
+}
+
+#[test]
+fn test_transpose_preserves_explicit_key_over_first_chord() {
+    let song = parse_song_from_str("@key: G Major\n#Verse\n[Am] Hello\n").unwrap();
+    let transposed = transpose_song(song, 1);
+    assert_eq!(transposed.directives.get("key").unwrap(), "Ab Major");
+}
+
+#[test]
+fn test_transpose_without_key_or_chords() {
+    let song = parse_song_from_str("#Verse\n... Lyrics only\n").unwrap();
+    let transposed = transpose_song(song, 1);
+    assert!(!transposed.directives.contains_key("key"));
+}
