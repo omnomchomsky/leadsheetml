@@ -11,7 +11,7 @@ blocks = { block+ }
 block = { section_header ~ lyric_line+ }
 
 section_header_start = { "#" }
-section_header = { section_header_start ~ ASCII_ALPHANUMERIC+  }
+section_header = ${ section_header_start ~ (!NEWLINE ~ ANY)+ ~ (NEWLINE | EOI)  }
 
 lyric_line = { lyric_block | measure }
 measure = { "|" ~ chord_or_text+ ~ "|" }
